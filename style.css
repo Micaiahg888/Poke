@@ -1,50 +1,62 @@
 body {
   font-family: Arial, sans-serif;
-  background-color: #f0f0f0;
+  margin: 0;
+  padding: 0;
+  background-color: #f3f4f6;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  height: 100vh;
+  flex-direction: column;
 }
 
 .container {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   text-align: center;
-  width: 80%;
-  max-width: 600px;
 }
 
-.pokemon-selector input {
-  margin: 10px;
-  padding: 10px;
-  width: 200px;
+h1 {
+  color: #0078d4;
+}
+
+#selection-section {
+  margin-bottom: 20px;
+}
+
+select {
+  width: 220px;
+  padding: 8px;
+  margin: 5px;
+  font-size: 14px;
 }
 
 button {
-  padding: 10px 20px;
-  margin-top: 20px;
-  font-size: 16px;
+  background-color: #0078d4;
+  color: white;
+  border: none;
+  padding: 10px;
   cursor: pointer;
-}
-
-.battle-log, .battle-results {
-  margin-top: 30px;
-  display: none;
-}
-
-#log-list {
-  list-style: none;
-  padding: 0;
-}
-
-#log-list li {
-  padding: 5px;
-  margin: 5px 0;
-  background-color: #ececec;
+  font-size: 16px;
   border-radius: 5px;
 }
 
-#winner {
-  font-size: 20px;
-  font-weight: bold;
-  color: #2e8b57;
+button:hover {
+  background-color: #005b99;
+}
+
+#battle-log {
+  margin-top: 20px;
+  background-color: #f1f1f1;
+  padding: 10px;
+  border-radius: 5px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+#battle-results {
+  margin-top: 20px;
+  font-size: 16px;
 }

@@ -13,18 +13,16 @@
         <div id="selection-section">
             <label for="pokemon1">Choose Pokémon 1:</label>
             <select id="pokemon1">
-                <option value="">Select a Pokémon</option>
-                <!-- Options will be populated via JavaScript -->
+                <option value="">Loading Pokémon...</option>
             </select>
             
             <label for="pokemon2">Choose Pokémon 2:</label>
             <select id="pokemon2">
-                <option value="">Select a Pokémon</option>
-                <!-- Options will be populated via JavaScript -->
+                <option value="">Loading Pokémon...</option>
             </select>
         </div>
 
-        <button id="start-battle">Start Battle</button>
+        <button id="start-battle" disabled>Start Battle</button>
         
         <div id="battle-log">
             <h3>Battle Log</h3>
@@ -38,6 +36,6 @@
             <p id="move-usage">Move Usage: </p>
         </div>
     </div>
-    <script src="app.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
