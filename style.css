@@ -1,48 +1,15 @@
 body {
   font-family: Arial, sans-serif;
-  background: #f2f2f2;
-  text-align: center;
-  margin: 0;
-  padding: 20px;
 }
 
-.container {
-  max-width: 800px;
-  margin: auto;
-}
-
-.selectors input {
-  margin: 10px;
-  padding: 10px;
-  width: 150px;
-}
-
-#battlefield {
-  display: flex;
-  justify-content: space-around;
-  margin-top: 30px;
-}
-
-.pokemon {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.pokemon img {
-  width: 150px;
-  transition: transform 0.3s ease;
-}
-
-.pokemon.attack img {
-  transform: translateX(-10px);
-}
-
-#log {
-  margin-top: 20px;
-  background: #fff;
-  padding: 10px;
-  height: 150px;
-  overflow-y: auto;
+.battle-log {
+  height: 300px;
+  overflow-y: scroll;
   border: 1px solid #ccc;
+  padding: 10px;
+  margin-top: 10px;
+}
+
+h1, h3 {
+  color: #007bff;
 }
