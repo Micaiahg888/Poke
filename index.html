@@ -1,145 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pokémon Battle Simulator</title>
-  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    .battle-log {
-      height: 300px;
-      overflow-y: scroll;
-      border: 1px solid #ccc;
-      padding: 10px;
-      margin-top: 10px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokémon Battle Simulator</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
-    <h1 class="my-4 text-center">Pokémon Battle Simulator</h1>
-    
-    <div class="row">
-      <div class="col-md-6">
-        <h3>Select Pokémon 1</h3>
-        <select id="pokemon1" class="form-control"></select>
-        <button class="btn btn-primary mt-3" onclick="getPokemonData(1)">Select</button>
-      </div>
-      <div class="col-md-6">
-        <h3>Select Pokémon 2</h3>
-        <select id="pokemon2" class="form-control"></select>
-        <button class="btn btn-primary mt-3" onclick="getPokemonData(2)">Select</button>
-      </div>
+    <div class="container">
+        <h1>Pokémon Battle Simulator</h1>
+        
+        <!-- Pokémon Selection -->
+        <div class="selection">
+            <label for="pokemon1">Choose Pokémon 1:</label>
+            <input type="text" id="pokemon1" placeholder="Search Pokémon...">
+            <label for="pokemon2">Choose Pokémon 2:</label>
+            <input type="text" id="pokemon2" placeholder="Search Pokémon...">
+        </div>
+
+        <!-- Start Battle Button -->
+        <button id="startBattle" onclick="startBattle()">Start Battle</button>
+
+        <!-- Battle Results and Logs -->
+        <div id="battleLog"></div>
+
+        <!-- Battle Statistics -->
+        <div id="battleStats">
+            <h3>Battle Statistics</h3>
+            <ul>
+                <li id="damageDealt">Damage Dealt: 0</li>
+                <li id="movesUsed">Moves Used: 0</li>
+            </ul>
+        </div>
+
+        <div id="battleResult"></div>
     </div>
-    
-    <div class="battle-log" id="battleLog"></div>
 
-    <h4 class="mt-4">Battle Result</h4>
-    <div id="battleResult"></div>
-
-    <button class="btn btn-success mt-3" onclick="startBattle()">Start Battle</button>
-  </div>
-
-  <script>
-    let pokemon1 = {};
-    let pokemon2 = {};
-    let moves1 = [];
-    let moves2 = [];
-
-    async function fetchPokemonNames() {
-      const response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=100');
-      const data = await response.json();
-      const pokemonNames = data.results;
-
-      const select1 = document.getElementById('pokemon1');
-      const select2 = document.getElementById('pokemon2');
-      
-      pokemonNames.forEach(pokemon => {
-        const option1 = document.createElement('option');
-        const option2 = document.createElement('option');
-        option1.value = pokemon.name;
-        option2.value = pokemon.name;
-        option1.innerText = pokemon.name;
-        option2.innerText = pokemon.name;
-        select1.appendChild(option1);
-        select2.appendChild(option2);
-      });
-    }
-
-    async function getPokemonData(pokemonNumber) {
-      const pokemonName = pokemonNumber === 1 ? document.getElementById('pokemon1').value : document.getElementById('pokemon2').value;
-      const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonName}`);
-      const data = await response.json();
-      
-      if (pokemonNumber === 1) {
-        pokemon1 = data;
-        moves1 = data.moves;
-      } else {
-        pokemon2 = data;
-        moves2 = data.moves;
-      }
-
-      displayPokemonStats(pokemonNumber);
-    }
-
-    function displayPokemonStats(pokemonNumber) {
-      const pokemon = pokemonNumber === 1 ? pokemon1 : pokemon2;
-      const log = document.getElementById('battleLog');
-      const pokemonName = pokemonNumber === 1 ? 'Pokémon 1' : 'Pokémon 2';
-
-      log.innerHTML += `<b>${pokemonName}:</b> ${pokemon.name.toUpperCase()} | HP: ${pokemon.stats[0].base_stat} | Attack: ${pokemon.stats[1].base_stat} | Defense: ${pokemon.stats[2].base_stat} <br>`;
-    }
-
-    function startBattle() {
-      const battleLog = document.getElementById('battleLog');
-      battleLog.innerHTML += "<br><b>Battle Begins!</b><br>";
-
-      let turn = 1;
-      let hp1 = pokemon1.stats[0].base_stat;
-      let hp2 = pokemon2.stats[0].base_stat;
-
-      while (hp1 > 0 && hp2 > 0) {
-        battleLog.innerHTML += `<b>Turn ${turn}:</b><br>`;
-
-        if (turn % 2 !== 0) {
-          const move = getRandomMove(moves1);
-          battleLog.innerHTML += `${pokemon1.name.toUpperCase()} used ${move.move.name}.<br>`;
-          hp2 -= calculateDamage(pokemon1, move);
-          battleLog.innerHTML += `HP left for ${pokemon2.name.toUpperCase()}: ${hp2}<br><br>`;
-        } else {
-          const move = getRandomMove(moves2);
-          battleLog.innerHTML += `${pokemon2.name.toUpperCase()} used ${move.move.name}.<br>`;
-          hp1 -= calculateDamage(pokemon2, move);
-          battleLog.innerHTML += `HP left for ${pokemon1.name.toUpperCase()}: ${hp1}<br><br>`;
-        }
-
-        turn++;
-      }
-
-      if (hp1 <= 0) {
-        battleLog.innerHTML += `<b>${pokemon2.name.toUpperCase()} wins!</b><br>`;
-        document.getElementById('battleResult').innerHTML = `${pokemon2.name.toUpperCase()} wins!`;
-      } else {
-        battleLog.innerHTML += `<b>${pokemon1.name.toUpperCase()} wins!</b><br>`;
-        document.getElementById('battleResult').innerHTML = `${pokemon1.name.toUpperCase()} wins!`;
-      }
-    }
-
-    function getRandomMove(moves) {
-      return moves[Math.floor(Math.random() * moves.length)];
-    }
-
-    function calculateDamage(pokemon, move) {
-      const baseDamage = pokemon.stats[1].base_stat / 2;
-      const movePower = move.move.name.length * 5;
-      return Math.floor(baseDamage + movePower);
-    }
-
-    fetchPokemonNames();
-  </script>
-
-  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.0/dist/umd/popper.min.js"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="api/pokemonAPI.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>

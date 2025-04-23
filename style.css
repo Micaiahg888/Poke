@@ -1,15 +1,52 @@
 body {
   font-family: Arial, sans-serif;
+  background-color: #f7f7f7;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
 
-.battle-log {
-  height: 300px;
-  overflow-y: scroll;
-  border: 1px solid #ccc;
+.container {
+  text-align: center;
+  padding: 20px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  background-color: white;
+}
+
+h1 {
+  margin-bottom: 20px;
+}
+
+.selection {
+  margin-bottom: 20px;
+}
+
+#startBattle {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+#battleLog {
+  margin-top: 20px;
   padding: 10px;
-  margin-top: 10px;
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  height: 200px;
+  overflow-y: auto;
 }
 
-h1, h3 {
-  color: #007bff;
+#battleStats {
+  margin-top: 20px;
+}
+
+#battleResult {
+  margin-top: 20px;
+  font-weight: bold;
+  font-size: 20px;
 }
