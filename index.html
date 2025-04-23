@@ -9,30 +9,35 @@
 <body>
     <div class="container">
         <h1>Pokémon Battle Simulator</h1>
-        <div class="pokemon-selector">
+        
+        <div id="selection-section">
             <label for="pokemon1">Choose Pokémon 1:</label>
-            <input type="text" id="pokemon1" placeholder="Start typing Pokémon name..." autocomplete="off">
+            <select id="pokemon1">
+                <option value="">Select a Pokémon</option>
+                <!-- Options will be populated via JavaScript -->
+            </select>
             
             <label for="pokemon2">Choose Pokémon 2:</label>
-            <input type="text" id="pokemon2" placeholder="Start typing Pokémon name..." autocomplete="off">
+            <select id="pokemon2">
+                <option value="">Select a Pokémon</option>
+                <!-- Options will be populated via JavaScript -->
+            </select>
         </div>
 
         <button id="start-battle">Start Battle</button>
-
-        <div class="battle-log">
-            <h2>Battle Log:</h2>
+        
+        <div id="battle-log">
+            <h3>Battle Log</h3>
             <ul id="log-list"></ul>
         </div>
 
-        <div class="battle-results">
-            <h2>Battle Results:</h2>
-            <div id="winner"></div>
-            <div id="stats"></div>
+        <div id="battle-results">
+            <h3>Results:</h3>
+            <p id="winner">Winner: </p>
+            <p id="stats">Damage Dealt: </p>
+            <p id="move-usage">Move Usage: </p>
         </div>
     </div>
-
-    <script src="pokemon-api.js"></script>
-    <script src="battle-logic.js"></script>
-    <script src="script.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
