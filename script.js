@@ -1,24 +1,3 @@
-// Fetch Pokémon list from the API and populate dropdown menus
-async function loadPokemonList() {
-  const response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=1000');  // You can adjust the limit
-  const data = await response.json();
-  
-  const pokemon1Select = document.getElementById('pokemon1');
-  const pokemon2Select = document.getElementById('pokemon2');
-  
-  data.results.forEach(pokemon => {
-    const option1 = document.createElement('option');
-    option1.value = pokemon.name;
-    option1.textContent = pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1);
-    pokemon1Select.appendChild(option1);
-
-    const option2 = document.createElement('option');
-    option2.value = pokemon.name;
-    option2.textContent = pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1);
-    pokemon2Select.appendChild(option2);
-  });
-}
-
 async function getPokemonData(name) {
   const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${name.toLowerCase()}`);
   if (!response.ok) {
@@ -61,9 +40,11 @@ function displayPokemon(pokemon, containerId) {
 function simulateBattle(p1, p2) {
   const log = [];
 
+  // Turn order by speed
   const [first, second] = p1.stats.speed >= p2.stats.speed ? [p1, p2] : [p2, p1];
   log.push(`${first.name} is faster and attacks first!`);
 
+  // Simple stat-based battle simulation (2 rounds max)
   function damage(attacker, defender) {
     return Math.max(1, attacker.stats.attack - defender.stats.defense);
   }
@@ -97,7 +78,7 @@ async function startBattle() {
   const name1 = document.getElementById('pokemon1').value.trim();
   const name2 = document.getElementById('pokemon2').value.trim();
 
-  if (!name1 || !name2) return alert("Please select two Pokémon.");
+  if (!name1 || !name2) return alert("Please enter two Pokémon names.");
 
   const [poke1, poke2] = await Promise.all([getPokemonData(name1), getPokemonData(name2)]);
 
@@ -113,6 +94,3 @@ async function startBattle() {
     <pre class="bg-white p-3 border rounded">${log.join('\n')}</pre>
   `;
 }
-
-// Load Pokémon names on page load
-loadPokemonList();
