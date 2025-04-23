@@ -9,34 +9,30 @@
 <body>
     <div class="container">
         <h1>Pokémon Battle Simulator</h1>
-        
-        <!-- Pokémon Selection -->
-        <div class="selection">
+        <div class="pokemon-selector">
             <label for="pokemon1">Choose Pokémon 1:</label>
-            <input type="text" id="pokemon1" placeholder="Search Pokémon...">
+            <input type="text" id="pokemon1" placeholder="Start typing Pokémon name..." autocomplete="off">
+            
             <label for="pokemon2">Choose Pokémon 2:</label>
-            <input type="text" id="pokemon2" placeholder="Search Pokémon...">
+            <input type="text" id="pokemon2" placeholder="Start typing Pokémon name..." autocomplete="off">
         </div>
 
-        <!-- Start Battle Button -->
-        <button id="startBattle" onclick="startBattle()">Start Battle</button>
+        <button id="start-battle">Start Battle</button>
 
-        <!-- Battle Results and Logs -->
-        <div id="battleLog"></div>
-
-        <!-- Battle Statistics -->
-        <div id="battleStats">
-            <h3>Battle Statistics</h3>
-            <ul>
-                <li id="damageDealt">Damage Dealt: 0</li>
-                <li id="movesUsed">Moves Used: 0</li>
-            </ul>
+        <div class="battle-log">
+            <h2>Battle Log:</h2>
+            <ul id="log-list"></ul>
         </div>
 
-        <div id="battleResult"></div>
+        <div class="battle-results">
+            <h2>Battle Results:</h2>
+            <div id="winner"></div>
+            <div id="stats"></div>
+        </div>
     </div>
 
-    <script src="api/pokemonAPI.js"></script>
+    <script src="pokemon-api.js"></script>
+    <script src="battle-logic.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

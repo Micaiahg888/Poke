@@ -1,52 +1,50 @@
 body {
   font-family: Arial, sans-serif;
-  background-color: #f7f7f7;
-  margin: 0;
-  padding: 0;
+  background-color: #f0f0f0;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  min-height: 100vh;
 }
 
 .container {
   text-align: center;
-  padding: 20px;
-  border: 2px solid #ddd;
-  border-radius: 8px;
-  background-color: white;
+  width: 80%;
+  max-width: 600px;
 }
 
-h1 {
-  margin-bottom: 20px;
+.pokemon-selector input {
+  margin: 10px;
+  padding: 10px;
+  width: 200px;
 }
 
-.selection {
-  margin-bottom: 20px;
-}
-
-#startBattle {
+button {
   padding: 10px 20px;
+  margin-top: 20px;
   font-size: 16px;
   cursor: pointer;
 }
 
-#battleLog {
-  margin-top: 20px;
-  padding: 10px;
-  background-color: #f0f0f0;
-  border: 1px solid #ddd;
+.battle-log, .battle-results {
+  margin-top: 30px;
+  display: none;
+}
+
+#log-list {
+  list-style: none;
+  padding: 0;
+}
+
+#log-list li {
+  padding: 5px;
+  margin: 5px 0;
+  background-color: #ececec;
   border-radius: 5px;
-  height: 200px;
-  overflow-y: auto;
 }
 
-#battleStats {
-  margin-top: 20px;
-}
-
-#battleResult {
-  margin-top: 20px;
-  font-weight: bold;
+#winner {
   font-size: 20px;
+  font-weight: bold;
+  color: #2e8b57;
 }
