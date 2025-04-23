@@ -1,102 +1,120 @@
-const API = "https://pokeapi.co/api/v2/";
-let allPokemon = [];
-
-window.onload = async () => {
-  const response = await fetch(`${API}pokemon?limit=1000`);
-  const data = await response.json();
-  allPokemon = data.results.map(p => p.name);
-  setupAutocomplete();
-};
-
-function setupAutocomplete() {
-  const inputs = [document.getElementById('pokemon1-input'), document.getElementById('pokemon2-input')];
-  inputs.forEach(input => {
-    input.addEventListener("input", () => {
-      const val = input.value.toLowerCase();
-      const match = allPokemon.find(p => p.startsWith(val));
-      if (match) input.value = match;
-    });
-  });
+async function getAllPokemon() {
+  const res = await fetch("https://pokeapi.co/api/v2/pokemon?limit=151");
+  const data = await res.json();
+  return data.results;
 }
 
-async function getPokemonData(name) {
-  const res = await fetch(`${API}pokemon/${name.toLowerCase()}`);
+async function fetchPokemon(name) {
+  const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${name}`);
   return await res.json();
 }
 
-async function getTypeEffectiveness(attackerType, defenderTypes) {
+async function fetchMoveDetails(url) {
+  const res = await fetch(url);
+  const data = await res.json();
+  return {
+    name: data.name,
+    power: data.power || 50,
+    accuracy: data.accuracy || 100,
+    type: data.type.name,
+  };
+}
+
+async function getTypeEffectiveness(attackType, defenderTypes) {
+  const res = await fetch(`https://pokeapi.co/api/v2/type/${attackType}`);
+  const data = await res.json();
   let multiplier = 1;
-  const res = await fetch(`${API}type/${attackerType}`);
-  const typeData = await res.json();
-  const { double_damage_to, half_damage_to, no_damage_to } = typeData.damage_relations;
-
-  for (const defender of defenderTypes) {
-    if (double_damage_to.some(t => t.name === defender)) multiplier *= 2;
-    if (half_damage_to.some(t => t.name === defender)) multiplier *= 0.5;
-    if (no_damage_to.some(t => t.name === defender)) multiplier *= 0;
-  }
-
+  defenderTypes.forEach(t => {
+    if (data.damage_relations.double_damage_to.some(d => d.name === t.type.name)) {
+      multiplier *= 2;
+    }
+    if (data.damage_relations.half_damage_to.some(d => d.name === t.type.name)) {
+      multiplier *= 0.5;
+    }
+    if (data.damage_relations.no_damage_to.some(d => d.name === t.type.name)) {
+      multiplier *= 0;
+    }
+  });
   return multiplier;
 }
 
-async function simulateTurn(p1, p2) {
-  const move1 = p1.moves[0]?.move.name;
-  const move2 = p2.moves[0]?.move.name;
-
-  const type1 = p1.types.map(t => t.type.name);
-  const type2 = p2.types.map(t => t.type.name);
-
-  const effectiveness1 = await getTypeEffectiveness(type1[0], type2);
-  const effectiveness2 = await getTypeEffectiveness(type2[0], type1);
-
-  const p1Attack = (p1.stats[1].base_stat * effectiveness1) - p2.stats[2].base_stat;
-  const p2Attack = (p2.stats[1].base_stat * effectiveness2) - p1.stats[2].base_stat;
-
-  const p1Speed = p1.stats[5].base_stat;
-  const p2Speed = p2.stats[5].base_stat;
-
-  let p1HP = p1.stats[0].base_stat;
-  let p2HP = p2.stats[0].base_stat;
-
-  const log = [`Battle starts between ${p1.name} and ${p2.name}!`];
-
-  while (p1HP > 0 && p2HP > 0) {
-    if (p1Speed >= p2Speed) {
-      p2HP -= p1Attack;
-      log.push(`${p1.name} hits ${p2.name} for ${p1Attack.toFixed(1)}!`);
-      if (p2HP <= 0) break;
-      p1HP -= p2Attack;
-      log.push(`${p2.name} hits ${p1.name} for ${p2Attack.toFixed(1)}!`);
-    } else {
-      p1HP -= p2Attack;
-      log.push(`${p2.name} hits ${p1.name} for ${p2Attack.toFixed(1)}!`);
-      if (p1HP <= 0) break;
-      p2HP -= p1Attack;
-      log.push(`${p1.name} hits ${p2.name} for ${p1Attack.toFixed(1)}!`);
-    }
+async function populateMoves(pokemon, selectId) {
+  const moveSelect = document.getElementById(selectId);
+  moveSelect.innerHTML = '';
+  const moveOptions = pokemon.moves.slice(0, 10);
+  for (const move of moveOptions) {
+    const option = document.createElement('option');
+    option.value = move.move.url;
+    option.textContent = move.move.name;
+    moveSelect.appendChild(option);
   }
-
-  const winner = p1HP > 0 ? p1.name : p2.name;
-  log.push(`🎉 ${winner.toUpperCase()} WINS!`);
-
-  return log;
 }
 
 async function startBattle() {
-  const name1 = document.getElementById("pokemon1-input").value;
-  const name2 = document.getElementById("pokemon2-input").value;
+  const p1Name = document.getElementById('pokemon1').value;
+  const p2Name = document.getElementById('pokemon2').value;
 
-  const p1 = await getPokemonData(name1);
-  const p2 = await getPokemonData(name2);
+  const p1 = await fetchPokemon(p1Name);
+  const p2 = await fetchPokemon(p2Name);
 
-  const log = await simulateTurn(p1, p2);
-  document.getElementById("battle-log").innerHTML = log.map(line => `<p>${line}</p>`).join("");
+  const move1Url = document.getElementById('move1-select').value;
+  const move2Url = document.getElementById('move2-select').value;
+
+  const move1 = await fetchMoveDetails(move1Url);
+  const move2 = await fetchMoveDetails(move2Url);
+
+  const eff1 = await getTypeEffectiveness(move1.type, p2.types);
+  const eff2 = await getTypeEffectiveness(move2.type, p1.types);
+
+  const damage1 = Math.floor((move1.power * eff1) - p2.stats[2].base_stat / 2);
+  const damage2 = Math.floor((move2.power * eff2) - p1.stats[2].base_stat / 2);
+
+  let winner = "It's a tie!";
+  if (p1.stats[5].base_stat > p2.stats[5].base_stat) {
+    winner = damage1 > damage2 ? p1.name : p2.name;
+  } else {
+    winner = damage2 > damage1 ? p2.name : p1.name;
+  }
+
+  document.getElementById('battle-result').innerText = `
+    ${p1.name} used ${move1.name} for ${damage1} damage.\n
+    ${p2.name} used ${move2.name} for ${damage2} damage.\n
+    Winner: ${winner.toUpperCase()}
+  `;
 }
 
-function getRandomBattle() {
-  const rand1 = allPokemon[Math.floor(Math.random() * allPokemon.length)];
-  const rand2 = allPokemon[Math.floor(Math.random() * allPokemon.length)];
+async function initialize() {
+  const pokemonList = await getAllPokemon();
+  const select1 = document.getElementById('pokemon1');
+  const select2 = document.getElementById('pokemon2');
 
-  document.getElementById('pokemon1-input').value = rand1;
-  document.getElementById('pokemon2-input').value = rand2;
+  pokemonList.forEach(p => {
+    const option1 = document.createElement('option');
+    option1.value = p.name;
+    option1.textContent = p.name;
+    select1.appendChild(option1);
+
+    const option2 = document.createElement('option');
+    option2.value = p.name;
+    option2.textContent = p.name;
+    select2.appendChild(option2);
+  });
+
+  select1.addEventListener('change', async () => {
+    const p1 = await fetchPokemon(select1.value);
+    populateMoves(p1, 'move1-select');
+  });
+
+  select2.addEventListener('change', async () => {
+    const p2 = await fetchPokemon(select2.value);
+    populateMoves(p2, 'move2-select');
+  });
+
+  // Load initial options
+  const initialP1 = await fetchPokemon(select1.value || pokemonList[0].name);
+  const initialP2 = await fetchPokemon(select2.value || pokemonList[1].name);
+  populateMoves(initialP1, 'move1-select');
+  populateMoves(initialP2, 'move2-select');
 }
+
+initialize();

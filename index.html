@@ -2,40 +2,31 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pokédex Battle Explorer</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <h1>Pokédex Battle Explorer</h1>
 
-  <div class="controls">
+  <div class="pokemon-select">
     <div>
-      <label>Pokémon 1: </label>
-      <input id="pokemon1-input" type="text" placeholder="Search Pokémon...">
+      <label for="pokemon1">Choose Pokémon 1:</label>
+      <select id="pokemon1"></select>
+      <label for="move1-select">Choose Move:</label>
+      <select id="move1-select"></select>
     </div>
+
     <div>
-      <label>Pokémon 2: </label>
-      <input id="pokemon2-input" type="text" placeholder="Search Pokémon...">
+      <label for="pokemon2">Choose Pokémon 2:</label>
+      <select id="pokemon2"></select>
+      <label for="move2-select">Choose Move:</label>
+      <select id="move2-select"></select>
     </div>
-    <button onclick="getRandomBattle()">🎲 Random Battle</button>
-    <button onclick="startBattle()">⚔️ Start Battle</button>
   </div>
 
-  <div id="filters">
-    <label>Filter by Type: 
-      <select id="type-filter">
-        <option value="">Any</option>
-        <option value="fire">Fire</option>
-        <option value="water">Water</option>
-        <option value="grass">Grass</option>
-        <option value="electric">Electric</option>
-        <!-- Add more types as needed -->
-      </select>
-    </label>
-  </div>
-
-  <div id="battle-log"></div>
+  <button onclick="startBattle()">Simulate Battle</button>
+  <div id="battle-result"></div>
 
   <script src="script.js"></script>
 </body>
