@@ -1,114 +1,120 @@
-// References to the HTML elements
-const pokemon1Select = document.getElementById('pokemon1');
-const pokemon2Select = document.getElementById('pokemon2');
-const startBattleButton = document.getElementById('start-battle');
-const battleLog = document.getElementById('log-list');
-const winnerDisplay = document.getElementById('winner');
-const statsDisplay = document.getElementById('stats');
-const moveUsageDisplay = document.getElementById('move-usage');
+const poke1Select = document.getElementById('pokemon1');
+const poke2Select = document.getElementById('pokemon2');
+const startBtn = document.getElementById('startBattle');
+const stats1Div = document.getElementById('stats1');
+const stats2Div = document.getElementById('stats2');
+const battleLog = document.getElementById('battleLog');
+const battleScreen = document.getElementById('battleScreen');
+const moveButtons = document.getElementById('moveButtons');
 
-// Pokémon data storage
-let pokemons = [];
-let selectedPokemon1 = {};
-let selectedPokemon2 = {};
+let poke1 = null;
+let poke2 = null;
 
-// Fetch list of Pokémon from the Pokémon API
-async function fetchPokemons() {
-    const response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=100');
-    const data = await response.json();
+const pokemonCache = {};
 
-    // Populate dropdowns with Pokémon names
-    pokemons = data.results;
-    pokemons.forEach(pokemon => {
-        const option1 = document.createElement('option');
-        option1.value = pokemon.name;
-        option1.textContent = pokemon.name;
-        pokemon1Select.appendChild(option1);
+// Capitalize helper
+const capitalize = s => s.charAt(0).toUpperCase() + s.slice(1);
 
-        const option2 = document.createElement('option');
-        option2.value = pokemon.name;
-        option2.textContent = pokemon.name;
-        pokemon2Select.appendChild(option2);
+// Populate dropdowns
+fetch('https://pokeapi.co/api/v2/pokemon?limit=151')
+  .then(res => res.json())
+  .then(data => {
+    data.results.forEach(pokemon => {
+      const option1 = document.createElement('option');
+      option1.value = pokemon.name;
+      option1.textContent = capitalize(pokemon.name);
+      poke1Select.appendChild(option1);
+
+      const option2 = option1.cloneNode(true);
+      poke2Select.appendChild(option2);
     });
+  });
 
-    // Enable the start battle button once Pokémon are loaded
-    startBattleButton.disabled = false;
+// Event listeners
+poke1Select.addEventListener('change', () => handleSelect(poke1Select.value, 1));
+poke2Select.addEventListener('change', () => handleSelect(poke2Select.value, 2));
+startBtn.addEventListener('click', startBattle);
+
+// Load and cache Pokémon
+function handleSelect(name, player) {
+  if (pokemonCache[name]) {
+    assignPokemon(pokemonCache[name], player);
+  } else {
+    fetch(`https://pokeapi.co/api/v2/pokemon/${name}`)
+      .then(res => res.json())
+      .then(data => {
+        const formatted = {
+          name: capitalize(data.name),
+          sprite: data.sprites.front_default,
+          hp: data.stats.find(s => s.stat.name === 'hp').base_stat,
+          attack: data.stats.find(s => s.stat.name === 'attack').base_stat,
+          defense: data.stats.find(s => s.stat.name === 'defense').base_stat,
+          type: data.types[0].type.name,
+          moves: data.moves.slice(0, 4).map(m => m.move.name),
+        };
+        pokemonCache[name] = formatted;
+        assignPokemon(formatted, player);
+      });
+  }
 }
 
-// Fetch detailed data of a selected Pokémon (stats, moves)
-async function fetchPokemonData(pokemonName) {
-    const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonName}`);
-    const data = await response.json();
-    
-    return {
-        name: data.name,
-        hp: data.stats.find(stat => stat.stat.name === 'hp').base_stat,
-        attack: data.stats.find(stat => stat.stat.name === 'attack').base_stat,
-        defense: data.stats.find(stat => stat.stat.name === 'defense').base_stat,
-        speed: data.stats.find(stat => stat.stat.name === 'speed').base_stat,
-        moves: data.moves.slice(0, 4).map(move => move.move.name),  // Take the first 4 moves
-        type: data.types[0].type.name,  // Simplification: take the first type
-    };
+// Assign to player
+function assignPokemon(data, player) {
+  if (player === 1) {
+    poke1 = { ...data, currentHp: data.hp };
+    stats1Div.innerHTML = showStats(poke1);
+  } else {
+    poke2 = { ...data, currentHp: data.hp };
+    stats2Div.innerHTML = showStats(poke2);
+  }
+
+  if (poke1 && poke2) startBtn.disabled = false;
 }
 
-// Function to calculate damage
-function calculateDamage(attacker, defender, move) {
-    let baseDamage = attacker.attack - defender.defense;
-    let effectiveness = 1;
-
-    // Example: Electric move vs. Water (high effectiveness)
-    if (move === "Thunderbolt" && defender.type === "water") {
-        effectiveness = 2; // Double damage for Electric move on Water type
-    }
-
-    return Math.max(baseDamage * effectiveness, 1);  // Ensure at least 1 damage
+// Render stats
+function showStats(p) {
+  return `
+    <img src="${p.sprite}" alt="${p.name}"><br>
+    <strong>${p.name}</strong><br>
+    Type: ${capitalize(p.type)}<br>
+    HP: ${p.hp}<br>
+    Attack: ${p.attack}<br>
+    Defense: ${p.defense}<br>
+    Moves: ${p.moves.map(capitalize).join(', ')}
+  `;
 }
 
-// Battle simulation function
-async function startBattle() {
-    // Get selected Pokémon data
-    selectedPokemon1 = await fetchPokemonData(pokemon1Select.value);
-    selectedPokemon2 = await fetchPokemonData(pokemon2Select.value);
+// Start battle
+function startBattle() {
+  battleScreen.classList.remove('hidden');
+  moveButtons.innerHTML = '';
+  battleLog.innerHTML = `<h3>Battle Begins!</h3>`;
 
-    // Battle simulation
-    let turn = 0;
-    let battleLogMessages = [];
-    let winner = "";
+  poke1.currentHp = poke1.hp;
+  poke2.currentHp = poke2.hp;
 
-    while (selectedPokemon1.hp > 0 && selectedPokemon2.hp > 0) {
-        turn++;
-        battleLogMessages.push(`Turn ${turn}:`);
-
-        // Player 1 attacks Player 2
-        const damageToP2 = calculateDamage(selectedPokemon1, selectedPokemon2, "Thunderbolt");
-        selectedPokemon2.hp -= damageToP2;
-        battleLogMessages.push(`${selectedPokemon1.name} uses Thunderbolt! ${selectedPokemon2.name} takes ${damageToP2} damage.`);
-
-        if (selectedPokemon2.hp <= 0) {
-            winner = selectedPokemon1.name;
-            break;
-        }
-
-        // Player 2 attacks Player 1
-        const damageToP1 = calculateDamage(selectedPokemon2, selectedPokemon1, "Flamethrower");
-        selectedPokemon1.hp -= damageToP1;
-        battleLogMessages.push(`${selectedPokemon2.name} uses Flamethrower! ${selectedPokemon1.name} takes ${damageToP1} damage.`);
-
-        if (selectedPokemon1.hp <= 0) {
-            winner = selectedPokemon2.name;
-            break;
-        }
-    }
-
-    // Display battle log and results
-    battleLog.innerHTML = battleLogMessages.map(msg => `<li>${msg}</li>`).join('');
-    winnerDisplay.textContent = `Winner: ${winner}`;
-    statsDisplay.textContent = `Damage Dealt: ${selectedPokemon1.attack + selectedPokemon2.attack}`; // Example stats
-    moveUsageDisplay.textContent = `Move Usage: Thunderbolt, Flamethrower`; // Example move usage
+  poke1.moves.forEach(move => {
+    const btn = document.createElement('button');
+    btn.textContent = capitalize(move);
+    btn.onclick = () => takeTurn(poke1, poke2, move);
+    moveButtons.appendChild(btn);
+  });
 }
 
-// Initialize the Pokémon dropdowns when the page loads
-document.addEventListener('DOMContentLoaded', fetchPokemons);
+// Take a turn
+function takeTurn(attacker, defender, move) {
+  const damage = Math.max(5, Math.floor((attacker.attack - defender.defense / 2) + Math.random() * 10));
+  defender.currentHp -= damage;
 
-// Event listener for the "Start Battle" button
-startBattleButton.addEventListener('click', startBattle);
+  battleLog.innerHTML += `<p>${attacker.name} used ${capitalize(move)}! It dealt ${damage} damage.</p>`;
+
+  if (defender.currentHp <= 0) {
+    battleLog.innerHTML += `<h3>${attacker.name} wins!</h3>`;
+    moveButtons.innerHTML = '';
+  } else {
+    setTimeout(() => {
+      const counterMove = defender.moves[Math.floor(Math.random() * defender.moves.length)];
+      takeTurn(defender, attacker, counterMove);
+    }, 1000);
+  }
+}

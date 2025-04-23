@@ -1,41 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pokémon Battle Simulator</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pokémon Battle Simulator</title>
+  <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
-    <div class="container">
-        <h1>Pokémon Battle Simulator</h1>
-        
-        <div id="selection-section">
-            <label for="pokemon1">Choose Pokémon 1:</label>
-            <select id="pokemon1">
-                <option value="">Loading Pokémon...</option>
-            </select>
-            
-            <label for="pokemon2">Choose Pokémon 2:</label>
-            <select id="pokemon2">
-                <option value="">Loading Pokémon...</option>
-            </select>
-        </div>
+  <h1>Pokémon Battle Simulator</h1>
 
-        <button id="start-battle" disabled>Start Battle</button>
-        
-        <div id="battle-log">
-            <h3>Battle Log</h3>
-            <ul id="log-list"></ul>
-        </div>
-
-        <div id="battle-results">
-            <h3>Results:</h3>
-            <p id="winner">Winner: </p>
-            <p id="stats">Damage Dealt: </p>
-            <p id="move-usage">Move Usage: </p>
-        </div>
+  <div class="selector-container">
+    <div class="pokemon-selector">
+      <h2>Pokémon 1</h2>
+      <select id="pokemon1"></select>
+      <div id="stats1" class="stats"></div>
     </div>
-    <script src="script.js"></script>
+    <div class="pokemon-selector">
+      <h2>Pokémon 2</h2>
+      <select id="pokemon2"></select>
+      <div id="stats2" class="stats"></div>
+    </div>
+  </div>
+
+  <button id="startBattle" disabled>Start Battle</button>
+
+  <div id="battleScreen" class="hidden">
+    <h2>Battle Log</h2>
+    <div id="battleLog"></div>
+    <div id="moveButtons"></div>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
