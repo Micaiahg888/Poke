@@ -1,34 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Pokédex Battle Explorer</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
-<body class="bg-light">
-  <div class="container py-5">
-    <h1 class="text-center mb-4">Pokédex Battle Explorer</h1>
+<body>
+  <h1>Pokédex Battle Explorer</h1>
 
-    <div class="row mb-4">
-      <div class="col-md-6">
-        <label for="pokemon1">Choose First Pokémon:</label>
-        <select id="pokemon1" class="form-select"></select>
-        <div id="poke1-display" class="mt-3"></div>
-      </div>
-      <div class="col-md-6">
-        <label for="pokemon2">Choose Second Pokémon:</label>
-        <select id="pokemon2" class="form-select"></select>
-        <div id="poke2-display" class="mt-3"></div>
-      </div>
+  <div class="controls">
+    <div>
+      <label>Pokémon 1: </label>
+      <input id="pokemon1-input" type="text" placeholder="Search Pokémon...">
     </div>
-
-    <div class="text-center">
-      <button class="btn btn-primary" onclick="startBattle()">Start Battle</button>
+    <div>
+      <label>Pokémon 2: </label>
+      <input id="pokemon2-input" type="text" placeholder="Search Pokémon...">
     </div>
-
-    <div id="battle-result" class="mt-5"></div>
+    <button onclick="getRandomBattle()">🎲 Random Battle</button>
+    <button onclick="startBattle()">⚔️ Start Battle</button>
   </div>
+
+  <div id="filters">
+    <label>Filter by Type: 
+      <select id="type-filter">
+        <option value="">Any</option>
+        <option value="fire">Fire</option>
+        <option value="water">Water</option>
+        <option value="grass">Grass</option>
+        <option value="electric">Electric</option>
+        <!-- Add more types as needed -->
+      </select>
+    </label>
+  </div>
+
+  <div id="battle-log"></div>
 
   <script src="script.js"></script>
 </body>
