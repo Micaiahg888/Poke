@@ -11,16 +11,9 @@ h1 {
 
 .controls {
   display: flex;
-  flex-wrap: wrap;
   justify-content: center;
   gap: 15px;
   margin-bottom: 20px;
-}
-
-.controls > div {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
 }
 
 #filters {
@@ -34,5 +27,4 @@ h1 {
   padding: 15px;
   background: white;
   border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }

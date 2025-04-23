@@ -13,19 +13,13 @@
     <div>
       <label>Pokémon 1: </label>
       <input id="pokemon1-input" type="text" placeholder="Search Pokémon...">
-      <label>Move:</label>
-      <select id="pokemon1-move"></select>
     </div>
     <div>
       <label>Pokémon 2: </label>
       <input id="pokemon2-input" type="text" placeholder="Search Pokémon...">
-      <label>Move:</label>
-      <select id="pokemon2-move"></select>
     </div>
-    <div>
-      <button onclick="getRandomBattle()">🎲 Random Battle</button>
-      <button onclick="startBattle()">⚔️ Start Battle</button>
-    </div>
+    <button onclick="getRandomBattle()">🎲 Random Battle</button>
+    <button onclick="startBattle()">⚔️ Start Battle</button>
   </div>
 
   <div id="filters">
@@ -36,6 +30,7 @@
         <option value="water">Water</option>
         <option value="grass">Grass</option>
         <option value="electric">Electric</option>
+        <!-- Add more types as needed -->
       </select>
     </label>
   </div>
