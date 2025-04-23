@@ -1,104 +1,85 @@
-async function loadDropdowns() {
-  const response = await fetch("https://pokeapi.co/api/v2/pokemon?limit=151");
-  const data = await response.json();
-  const pokemonList = data.results;
+let poke1 = {}, poke2 = {};
+let currentTurn = 0;
 
-  const dropdown1 = document.getElementById('pokemon1');
-  const dropdown2 = document.getElementById('pokemon2');
-
-  pokemonList.forEach(p => {
-    const option1 = new Option(p.name, p.name);
-    const option2 = new Option(p.name, p.name);
-    dropdown1.add(option1);
-    dropdown2.add(option2);
-  });
+async function fetchPokemon(name) {
+  const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${name.toLowerCase()}`);
+  if (!res.ok) throw new Error("Pokémon not found");
+  return await res.json();
 }
 
-async function getPokemonData(name) {
-  const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${name}`);
-  const data = await response.json();
-  return {
-    name: data.name,
-    sprite: data.sprites.front_default,
-    stats: {
-      hp: data.stats[0].base_stat,
-      attack: data.stats[1].base_stat,
-      defense: data.stats[2].base_stat,
-      speed: data.stats[5].base_stat
-    },
-    types: data.types.map(t => t.type.name),
-    abilities: data.abilities.map(a => a.ability.name)
-  };
+function getRandomMove(pokemon) {
+  const damageMoves = pokemon.moves.filter(m => m.move.name !== "growl");
+  return damageMoves[Math.floor(Math.random() * damageMoves.length)].move.name;
 }
 
-function displayPokemon(pokemon, containerId) {
-  const container = document.getElementById(containerId);
-  container.innerHTML = `
-    <div class="card p-3 text-center">
-      <h4 class="text-capitalize">${pokemon.name}</h4>
-      <img src="${pokemon.sprite}" alt="${pokemon.name}" class="poke-sprite">
-      <p><strong>Types:</strong> ${pokemon.types.join(', ')}</p>
-      <p><strong>Abilities:</strong> ${pokemon.abilities.join(', ')}</p>
-      <p><strong>Stats:</strong><br>
-        HP: ${pokemon.stats.hp}, 
-        ATK: ${pokemon.stats.attack}, 
-        DEF: ${pokemon.stats.defense}, 
-        SPD: ${pokemon.stats.speed}
-      </p>
-    </div>
-  `;
+function log(message) {
+  const logBox = document.getElementById("log");
+  logBox.innerHTML += message + "<br/>";
+  logBox.scrollTop = logBox.scrollHeight;
 }
 
-function simulateBattle(p1, p2) {
-  const log = [];
-  const [first, second] = p1.stats.speed >= p2.stats.speed ? [p1, p2] : [p2, p1];
-  log.push(`${first.name} is faster and attacks first!`);
+function animateAttack(attackerId) {
+  const attacker = document.getElementById(attackerId);
+  attacker.classList.add("attack");
+  setTimeout(() => attacker.classList.remove("attack"), 300);
+}
 
-  function damage(attacker, defender) {
-    return Math.max(1, attacker.stats.attack - defender.stats.defense);
+async function getMoveData(moveName) {
+  const res = await fetch(`https://pokeapi.co/api/v2/move/${moveName}`);
+  return await res.json();
+}
+
+function calculateDamage(move, attacker, defender) {
+  const power = move.power || 50;
+  const attack = attacker.stats[1].base_stat;
+  const defense = defender.stats[2].base_stat;
+  return Math.max(1, Math.floor(((2 * 50 / 5 + 2) * power * attack / defense) / 50) + 2);
+}
+
+async function battleTurn() {
+  const attacker = currentTurn % 2 === 0 ? poke1 : poke2;
+  const defender = currentTurn % 2 === 0 ? poke2 : poke1;
+  const attackerId = currentTurn % 2 === 0 ? "poke1" : "poke2";
+  const defenderHpId = currentTurn % 2 === 0 ? "hp2" : "hp1";
+
+  animateAttack(attackerId);
+  const moveName = getRandomMove(attacker);
+  const move = await getMoveData(moveName);
+  const damage = calculateDamage(move, attacker, defender);
+  defender.hp -= damage;
+  document.getElementById(defenderHpId).textContent = `HP: ${defender.hp}`;
+  log(`${attacker.name} used ${move.name}! It did ${damage} damage!`);
+
+  if (defender.hp <= 0) {
+    log(`${defender.name} fainted!`);
+    return;
   }
 
-  let p1HP = p1.stats.hp;
-  let p2HP = p2.stats.hp;
-
-  for (let turn = 0; turn < 10; turn++) {
-    const atk = turn % 2 === 0 ? first : second;
-    const def = turn % 2 === 0 ? second : first;
-    const dmg = damage(atk, def);
-
-    if (def.name === p1.name) {
-      p1HP -= dmg;
-      log.push(`${atk.name} attacks ${def.name} for ${dmg} damage! ${p1.name} has ${p1HP} HP left.`);
-      if (p1HP <= 0) break;
-    } else {
-      p2HP -= dmg;
-      log.push(`${atk.name} attacks ${def.name} for ${dmg} damage! ${p2.name} has ${p2HP} HP left.`);
-      if (p2HP <= 0) break;
-    }
-  }
-
-  let winner = p1HP > p2HP ? p1.name : p2.name;
-  log.push(`🏆 Winner: ${winner.toUpperCase()}!`);
-  return log;
+  currentTurn++;
+  setTimeout(battleTurn, 1000);
 }
 
 async function startBattle() {
-  const name1 = document.getElementById('pokemon1').value;
-  const name2 = document.getElementById('pokemon2').value;
+  document.getElementById("log").innerHTML = "";
+  const name1 = document.getElementById("pokemon1").value;
+  const name2 = document.getElementById("pokemon2").value;
 
-  if (!name1 || !name2) return alert("Please select two Pokémon.");
+  try {
+    poke1 = await fetchPokemon(name1);
+    poke2 = await fetchPokemon(name2);
+  } catch (e) {
+    alert("Failed to fetch one or both Pokémon.");
+    return;
+  }
 
-  const [poke1, poke2] = await Promise.all([getPokemonData(name1), getPokemonData(name2)]);
+  document.getElementById("img1").src = poke1.sprites.front_default;
+  document.getElementById("img2").src = poke2.sprites.front_default;
+  document.getElementById("hp1").textContent = "HP: 100";
+  document.getElementById("hp2").textContent = "HP: 100";
 
-  displayPokemon(poke1, 'poke1-display');
-  displayPokemon(poke2, 'poke2-display');
+  poke1.hp = 100;
+  poke2.hp = 100;
+  currentTurn = 0;
 
-  const log = simulateBattle(poke1, poke2);
-  document.getElementById('battle-result').innerHTML = `
-    <h3 class="text-center mt-4">Battle Log</h3>
-    <pre class="bg-white p-3 border rounded">${log.join('\n')}</pre>
-  `;
+  battleTurn();
 }
-
-// Initialize dropdowns on page load
-window.onload = loadDropdowns;
